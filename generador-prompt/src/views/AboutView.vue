@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import Chabot from '../components/HelloWorld.vue'
+import Chabot from '../components/ChatbotInterface.vue'
 </script>
 
 <template>
-  <HeaderPage />
   <main>
     <Chabot />
   </main>

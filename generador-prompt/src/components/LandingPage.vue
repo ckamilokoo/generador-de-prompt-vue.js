@@ -246,11 +246,12 @@ const exportPrompt = () => {
           <div class="container mx-auto px-4 py-20 text-center">
             <h2 class="text-5xl font-bold mb-6 text-white leading-tight">
               Craft Perfect Prompts <br />
-              <span class="text-gradient">Among the Stars</span>
+              <span class="text-gradient">Entre las estrellas</span>
             </h2>
             <p class="text-xl mb-10 text-gray-300 max-w-2xl mx-auto">
-              Unlock the full potential of AI with expertly crafted prompts. Our cosmic assistant
-              helps you create the perfect instructions for any AI model.
+              Libera todo el potencial de la IA con instrucciones elaboradas por expertos. Nuestro
+              asistente cósmico te ayuda a crear las instrucciones perfectas para cualquier modelo
+              de IA.
             </p>
             <button @click="navigateToPricing" class="cta-button">
               Start Your Journey
