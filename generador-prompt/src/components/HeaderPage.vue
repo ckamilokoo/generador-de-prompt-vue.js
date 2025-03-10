@@ -8,18 +8,18 @@
       <nav>
         <ul class="flex space-x-6">
           <RouterLink
-            to="/about"
-            type="button"
-            class="mr-3 hidden border border-blue-700 py-1.5 px-6 text-center text-sm font-medium text-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 md:inline-block rounded-lg"
-          >
-            Chatbot
-          </RouterLink>
-          <RouterLink
             to="/"
             type="button"
             class="mr-3 hidden border border-blue-700 py-1.5 px-6 text-center text-sm font-medium text-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 md:inline-block rounded-lg"
           >
             Inicio
+          </RouterLink>
+          <RouterLink
+            to="/about"
+            type="button"
+            class="mr-3 hidden border border-blue-700 py-1.5 px-6 text-center text-sm font-medium text-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 md:inline-block rounded-lg"
+          >
+            Chatbot
           </RouterLink>
 
           <li v-if="!isLoggedIn">

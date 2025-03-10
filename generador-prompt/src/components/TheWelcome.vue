@@ -403,31 +403,6 @@ const exportPrompt = () => {
       </section>
     </main>
 
-    <footer class="footer">
-      <div class="container mx-auto px-4 py-8">
-        <div class="flex flex-col md:flex-row justify-between items-center">
-          <div class="mb-4 md:mb-0">
-            <div class="flex items-center">
-              <SparklesIcon class="h-6 w-6 text-purple-400" />
-              <span class="ml-2 text-white font-semibold">Prompt Nebula</span>
-            </div>
-            <p class="text-gray-400 text-sm mt-2">© 2025 Prompt Nebula. All rights reserved.</p>
-          </div>
-          <div class="flex space-x-6">
-            <a href="#" class="text-gray-400 hover:text-white transition-colors">
-              <TwitterIcon class="h-5 w-5" />
-            </a>
-            <a href="#" class="text-gray-400 hover:text-white transition-colors">
-              <GithubIcon class="h-5 w-5" />
-            </a>
-            <a href="#" class="text-gray-400 hover:text-white transition-colors">
-              <LinkedinIcon class="h-5 w-5" />
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
-
     <!-- Login Modal -->
     <div v-if="showLoginModal" class="modal-overlay">
       <div class="modal-container">
@@ -613,9 +588,7 @@ body {
 
 /* Hero section */
 .hero-section {
-  background:
-    linear-gradient(to bottom, rgba(10, 11, 26, 0), rgba(10, 11, 26, 0.8)),
-    url('/placeholder.svg?height=800&width=1600');
+  background: linear-gradient(to bottom, rgba(10, 11, 26, 0), rgba(10, 11, 26, 0.8));
   background-size: cover;
   background-position: center;
   position: relative;
