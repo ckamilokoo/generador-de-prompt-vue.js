@@ -108,16 +108,7 @@ onMounted(() => {
         <div class="chat-header">
           <div>
             <h2 class="text-xl font-semibold text-white">AI Prompt Assistant</h2>
-            <p class="text-sm text-gray-400">Creating the perfect prompt for your needs</p>
-          </div>
-          <div class="prompt-type">
-            <select v-model="promptType" class="prompt-type-select">
-              <option value="general">General Purpose</option>
-              <option value="image">Image Generation</option>
-              <option value="code">Code Assistant</option>
-              <option value="writing">Content Writing</option>
-              <option value="data">Data Analysis</option>
-            </select>
+            <p class="text-sm text-gray-400">Crear el Prompt perfecto para sus necesidades</p>
           </div>
         </div>
 
