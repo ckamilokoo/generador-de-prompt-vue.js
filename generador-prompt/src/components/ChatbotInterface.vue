@@ -92,9 +92,8 @@ const formatMessage = (message) => {
 
 onMounted(() => {
   addBotMessage(
-    "Welcome to the Prompt Nebula Assistant! I'm here to help you craft the perfect prompt for your AI needs. " +
-      "You can select a specific prompt type from the dropdown above or just tell me what you're looking for. " +
-      'What kind of prompt would you like to create today?',
+    '¡Bienvenido al Asistente Nebula Prompt!\n Estoy aquí para ayudarte a crear el prompt perfecto para tus necesidades de IA \n' +
+      ' Que tipo de Prompt te gustaria crear hoy?',
   )
 })
 </script>
