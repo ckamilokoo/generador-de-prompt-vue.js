@@ -23,7 +23,13 @@
           </RouterLink>
 
           <li v-if="!isLoggedIn">
-            <button @click="showLoginModal = true" class="login-button">Login</button>
+            <RouterLink
+              to="auth/login"
+              type="button"
+              class="mr-3 hidden border border-blue-700 py-1.5 px-6 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 focus:ring-blue-300 md:inline-block rounded-lg"
+            >
+              Login
+            </RouterLink>
           </li>
           <li v-else>
             <button @click="navigateToApp" class="app-button">Go to App</button>

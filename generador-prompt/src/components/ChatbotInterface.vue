@@ -10,6 +10,9 @@ import {
   XIcon,
 } from 'lucide-vue-next'
 import { ref, onMounted, nextTick } from 'vue'
+const authStore = useAuthStore()
+
+import { useAuthStore } from '@/auth/stores/auth.store'
 
 const userInput = ref('')
 const messages = ref([])
@@ -19,7 +22,7 @@ const generatedPrompt = ref('')
 const showSaveModal = ref(false)
 const promptTitle = ref('')
 const promptCategory = ref('image')
-const savedPrompts = ref([])
+
 const messagesContainer = ref(null)
 
 const addBotMessage = (content) => {
@@ -54,26 +57,10 @@ const sendMessage = () => {
   }, 1500)
 }
 
-const generateAIResponse = (query) => {
-  let response = ''
-  if (messages.value.length > 4) {
-    generateSamplePrompt(query)
-    response =
-      "I've created a prompt based on our conversation. You can see it in the preview panel. " +
-      "Feel free to save it, copy it, or ask me to refine it further. Is there anything specific you'd like to change about this prompt?"
-  } else {
-    if (promptType.value === 'image' || query.toLowerCase().includes('image')) {
-      response =
-        "Great! Let's create a prompt for image generation. Here are some questions to help structure your prompt:<br><br>"
-    } else if (promptType.value === 'code' || query.toLowerCase().includes('code')) {
-      response =
-        "Let's create a prompt for coding assistance. To make it effective, consider including:<br><br>"
-    } else {
-      response =
-        "I'd be happy to help you create a prompt. To get started, could you tell me more about:<br><br>"
-    }
-  }
-  addBotMessage(response)
+const generateAIResponse = async (query) => {
+  const ok = await authStore.mensaje(query, authStore.user.value)
+  console.log(ok)
+  addBotMessage(ok)
 }
 
 const generateSamplePrompt = (query) => {

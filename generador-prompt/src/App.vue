@@ -1,12 +1,49 @@
 <script setup lang="ts">
 import FooterPage from './components/FooterPage.vue'
 import HeaderPage from './components/HeaderPage.vue'
+
+const route = useRoute()
+
+console.log('Ruta actual:', route.path)
+console.log('Nombre de la ruta:', route.name)
+console.log('Query parameters:', route.query)
+console.log('Params:', route.params)
+
+import { useAuthStore } from './auth/stores/auth.store'
+import { AuthStatus } from './auth/interfaces/Auth.Response'
+import { useRoute, useRouter } from 'vue-router'
+import FullScreenLoader from './modules/common/componentes/FullScreenLoader.vue'
+
+const authStore = useAuthStore()
+
+const router = useRouter()
+
+authStore.$subscribe(
+  (_, state) => {
+    if (state.authStatus === AuthStatus.Cheking) {
+      authStore.checkAuthStatus()
+      console.log(state.authStatus)
+      return
+    }
+    if (route.path.includes('/auth') && state.authStatus === AuthStatus.Autorizado) {
+      router.replace({ name: 'home' })
+      return
+    }
+    console.log(state.authStatus)
+  },
+  {
+    immediate: true,
+  },
+)
 </script>
 
 <template>
-  <HeaderPage />
-  <RouterView />
-  <FooterPage />
+  <div v-if="route.path == '/auth/login'"><RouterView /></div>
+  <div v-else>
+    <HeaderPage />
+    <RouterView />
+    <FooterPage />
+  </div>
 </template>
 
 <style scoped>
