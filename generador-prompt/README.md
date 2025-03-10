@@ -1,45 +1,62 @@
-# generador-prompt
+# 🚀 Craft Perfect Prompts - Among the Stars
 
-This template should help get you started developing with Vue 3 in Vite.
+Bienvenido a **Craft Perfect Prompts**, una plataforma diseñada para ayudarte a desbloquear el máximo potencial de la inteligencia artificial a través de la creación de prompts precisos y efectivos. Nuestro asistente cósmico te guiará en la generación de instrucciones perfectas para cualquier modelo de IA.
 
-## Recommended IDE Setup
+## 🌌 Tecnologías Utilizadas
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+Este proyecto está desarrollado con las siguientes tecnologías:
 
-## Type Support for `.vue` Imports in TS
+- **Vue.js 3** ⚡ - Framework progresivo para la creación de interfaces web interactivas.
+- **Tailwind CSS** 🎨 - Un framework de utilidades CSS para diseñar interfaces modernas y responsivas.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## 📦 Instalación
 
-## Customize configuration
+Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+1. Clona este repositorio:
+   ```sh
+   git clone https://github.com/tu-usuario/craft-perfect-prompts.git
+   cd craft-perfect-prompts
+   ```
+2. Instala las dependencias:
+   ```sh
+   npm install
+   ```
+3. Inicia el servidor de desarrollo:
+   ```sh
+   npm run dev
+   ```
+4. Abre tu navegador y accede a:
+   ```
+   http://localhost:5173
+   ```
 
-## Project Setup
+## 🚀 Características
 
-```sh
-npm install
-```
+- 📜 **Creación de prompts efectivos** para modelos de inteligencia artificial.
+- 🌠 **Interfaz intuitiva y dinámica** para mejorar la experiencia del usuario.
+- 🎨 **Diseño moderno** y responsivo gracias a Tailwind CSS.
+- ⚡ **Desempeño optimizado** con Vue.js 3 y su sistema de composición.
 
-### Compile and Hot-Reload for Development
+## 🛠️ Uso
 
-```sh
-npm run dev
-```
+1. Escribe tu idea o necesidad en el campo de entrada.
+2. El asistente te ayudará a estructurar un prompt efectivo.
+3. Copia y usa el prompt generado en tu modelo de IA favorito.
 
-### Type-Check, Compile and Minify for Production
+## 🤝 Contribuciones
 
-```sh
-npm run build
-```
+¡Las contribuciones son bienvenidas! Si deseas mejorar este proyecto:
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+1. Haz un fork del repositorio.
+2. Crea una nueva rama con tu mejora (`git checkout -b feature/nueva-funcionalidad`).
+3. Realiza tus cambios y haz un commit (`git commit -m 'Agrega nueva funcionalidad'`).
+4. Envía un pull request.
 
-```sh
-npm run test:unit
-```
+## 📜 Licencia
 
-### Lint with [ESLint](https://eslint.org/)
+Este proyecto está bajo la licencia **MIT**. Puedes usarlo y modificarlo libremente.
 
-```sh
-npm run lint
-```
+---
+
+🌌 **Explora el poder de la IA con prompts perfectos.** ✨
