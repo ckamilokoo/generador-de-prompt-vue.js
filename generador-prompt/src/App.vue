@@ -12,7 +12,6 @@ console.log('Params:', route.params)
 import { useAuthStore } from './auth/stores/auth.store'
 import { AuthStatus } from './auth/interfaces/Auth.Response'
 import { useRoute, useRouter } from 'vue-router'
-import FullScreenLoader from './modules/common/componentes/FullScreenLoader.vue'
 
 const authStore = useAuthStore()
 
