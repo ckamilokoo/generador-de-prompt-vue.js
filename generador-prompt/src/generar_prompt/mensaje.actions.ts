@@ -12,6 +12,7 @@ export const Generar_PromptActions = async (mensaje: string, thread_id: string) 
       thread_id: data.thread_id,
     }
   } catch (error) {
+    console.log(error)
     if (isAxiosError(error) && error.response?.status === 401) {
       return {
         ok: false,

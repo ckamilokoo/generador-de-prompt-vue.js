@@ -17,7 +17,6 @@ import { useAuthStore } from '@/auth/stores/auth.store'
 const userInput = ref('')
 const messages = ref([])
 const isTyping = ref(false)
-const promptType = ref('general')
 const generatedPrompt = ref('')
 const showSaveModal = ref(false)
 const promptTitle = ref('')
@@ -57,20 +56,27 @@ const sendMessage = () => {
   }, 1500)
 }
 
-const generateAIResponse = async (query) => {
-  const ok = await authStore.mensaje(query, authStore.user.value)
-  console.log(ok)
-  addBotMessage(ok)
-}
+const threadId = ref('') // Añadir referencia para el thread ID
 
-const generateSamplePrompt = (query) => {
-  let prompt = ''
-  if (promptType.value === 'image') {
-    prompt = 'Create a highly detailed digital illustration of a cosmic observatory...'
-  } else if (promptType.value === 'code') {
-    prompt = 'I need help creating a JavaScript function that processes astronomical data...'
+const generateAIResponse = async (query) => {
+  try {
+    isTyping.value = true
+    // Si no tenemos threadId, lo creamos a partir del username del usuario
+    if (!threadId.value) {
+      threadId.value = authStore.user.username
+    }
+
+    // Enviamos el mensaje al backend y obtenemos la respuesta (que es un ref)
+    const response = await authStore.mensaje(query, threadId.value)
+    // Como response es un ref, accedemos a su valor con .value
+    // Y lo mostramos en el chat llamando a addBotMessage
+    addBotMessage(response.value)
+  } catch (error) {
+    console.error('Error:', error)
+    addBotMessage('Ocurrió un error al comunicarse con el servidor')
+  } finally {
+    isTyping.value = false
   }
-  generatedPrompt.value = prompt
 }
 
 const formatMessage = (message) => {

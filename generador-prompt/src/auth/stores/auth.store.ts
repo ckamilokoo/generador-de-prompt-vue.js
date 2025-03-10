@@ -19,8 +19,8 @@ export const useAuthStore = defineStore('auth', () => {
 
       mensajes.value = MensajeResp.respuesta
 
-      authStatus.value = AuthStatus.Autorizado
-      return true
+      console.log(mensajes)
+      return mensajes
     } catch (error) {
       return error
     }
