@@ -103,29 +103,6 @@ onMounted(() => {
   <div class="chatbot-container">
     <div class="stars-bg"></div>
 
-    <header class="header">
-      <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div class="logo-container flex items-center">
-          <SparklesIcon class="h-7 w-7 text-purple-400" />
-          <h1 class="text-xl font-bold ml-2 text-white">Prompt Nebula</h1>
-        </div>
-        <div class="flex items-center space-x-4">
-          <button @click="savePrompt" class="action-button">
-            <SaveIcon class="h-5 w-5 mr-1" />
-            Save
-          </button>
-          <button @click="exportPrompt" class="action-button">
-            <DownloadIcon class="h-5 w-5 mr-1" />
-            Export
-          </button>
-          <button @click="goToHome" class="action-button">
-            <HomeIcon class="h-5 w-5 mr-1" />
-            Home
-          </button>
-        </div>
-      </div>
-    </header>
-
     <main class="main-content">
       <div class="chat-interface">
         <div class="chat-header">
@@ -305,7 +282,7 @@ body {
   display: flex;
   align-items: center;
   background-color: rgba(109, 40, 217, 0.2);
-  color: var(--color-text-secondary);
+  color: rgb(208, 202, 202);
   padding: 0.5rem 0.75rem;
   border-radius: 0.375rem;
   font-weight: 500;
@@ -411,7 +388,7 @@ body {
   background-color: rgba(26, 27, 75, 0.8);
   padding: 1rem;
   border-radius: 0.5rem;
-  color: var(--color-text-secondary);
+  color: white;
   max-width: calc(100% - 4rem);
 }
 

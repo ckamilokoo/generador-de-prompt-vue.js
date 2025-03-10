@@ -240,35 +240,6 @@ const exportPrompt = () => {
   <div class="app-container">
     <div class="stars-bg"></div>
 
-    <header class="header">
-      <div class="container mx-auto px-4 py-6 flex justify-between items-center">
-        <div class="logo-container flex items-center">
-          <SparklesIcon class="h-8 w-8 text-purple-400" />
-          <h1 class="text-2xl font-bold ml-2 text-white">Prompt Nebula</h1>
-        </div>
-        <nav>
-          <ul class="flex space-x-6">
-            <RouterLink
-              to="/about"
-              type="button"
-              class="mr-3 hidden border border-blue-700 py-1.5 px-6 text-center text-sm font-medium text-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 md:inline-block rounded-lg"
-            >
-              Chatbot
-            </RouterLink>
-            <li><a href="#features" class="nav-link">Features</a></li>
-            <li><a href="#pricing" class="nav-link">Pricing</a></li>
-            <li><a href="#about" class="nav-link">About</a></li>
-            <li v-if="!isLoggedIn">
-              <button @click="showLoginModal = true" class="login-button">Login</button>
-            </li>
-            <li v-else>
-              <button @click="navigateToApp" class="app-button">Go to App</button>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </header>
-
     <main>
       <section v-if="currentView === 'landing'" class="landing-section">
         <div class="hero-section">

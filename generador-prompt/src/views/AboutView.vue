@@ -3,6 +3,7 @@ import Chabot from '../components/HelloWorld.vue'
 </script>
 
 <template>
+  <HeaderPage />
   <main>
     <Chabot />
   </main>
