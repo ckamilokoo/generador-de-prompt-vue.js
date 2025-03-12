@@ -583,4 +583,38 @@ body {
 .save-button:hover {
   background-color: var(--color-accent-secondary);
 }
+
+/* Media queries para dispositivos móviles y tabletas */
+@media (max-width: 640px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  .chat-interface {
+    height: calc(100vh - 140px);
+  }
+
+  .chat-header,
+  .input-container {
+    padding: 0.75rem 1rem;
+  }
+
+  .messages-container {
+    padding: 1rem;
+  }
+
+  .message-content {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .prompt-preview {
+    margin-top: 1rem;
+    border-radius: 0.375rem;
+  }
+
+  .modal-container {
+    margin: 0 1rem;
+  }
+}
 </style>

@@ -25,7 +25,7 @@ authStore.$subscribe(
       return
     }
     if (route.path.includes('/auth') && state.authStatus === AuthStatus.Autorizado) {
-      router.replace({ name: 'home' })
+      router.replace({ name: 'about' })
       return
     }
     console.log(state.authStatus)
