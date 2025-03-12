@@ -12,32 +12,28 @@ console.log('Params:', route.params)
 import { useAuthStore } from './auth/stores/auth.store'
 import { AuthStatus } from './auth/interfaces/Auth.Response'
 import { useRoute, useRouter } from 'vue-router'
+import { onMounted, watch } from 'vue'
 
 const authStore = useAuthStore()
 
 const router = useRouter()
 
-authStore.$subscribe(
-  (_, state) => {
-    if (state.authStatus === AuthStatus.Cheking) {
-      authStore.checkAuthStatus()
-      console.log(state.authStatus)
-      return
-    }
-    if (route.path.includes('/auth') && state.authStatus === AuthStatus.Autorizado) {
+onMounted(() => {
+  authStore.checkAuthStatus()
+})
+
+watch(
+  () => ({ path: route.path, status: authStore.authStatus }),
+  ({ path, status }) => {
+    if (path.includes('/auth') && status === AuthStatus.Autorizado) {
       router.replace({ name: 'about' })
-      return
     }
 
-    if (route.path.includes('/about') && state.authStatus === AuthStatus.NoAutorizado) {
-      router.replace({ name: 'login' })
-      return
+    if (!path.includes('/auth') && status === AuthStatus.NoAutorizado) {
+      router.push({ name: 'login' })
     }
-    console.log(state.authStatus)
   },
-  {
-    immediate: true,
-  },
+  { immediate: true },
 )
 </script>
 

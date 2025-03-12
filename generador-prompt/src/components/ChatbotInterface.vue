@@ -1,5 +1,14 @@
 <script setup>
 import {
+  FwbA,
+  FwbTable,
+  FwbTableBody,
+  FwbTableCell,
+  FwbTableHead,
+  FwbTableHeadCell,
+  FwbTableRow,
+} from 'flowbite-vue'
+import {
   SparklesIcon,
   UserIcon,
   SendIcon,
@@ -12,15 +21,24 @@ import {
 import { ref, onMounted, nextTick } from 'vue'
 const authStore = useAuthStore()
 
+import { FwbButton, FwbModal } from 'flowbite-vue'
+
+const isShowModal = ref(false)
+
+function closeModal() {
+  isShowModal.value = false
+}
+function showModal() {
+  isShowModal.value = true
+}
+
 import { useAuthStore } from '@/auth/stores/auth.store'
 
 const userInput = ref('')
 const messages = ref([])
 const isTyping = ref(false)
-const generatedPrompt = ref('')
-const showSaveModal = ref(false)
-const promptTitle = ref('')
-const promptCategory = ref('image')
+
+const sidebar = ref(false)
 
 const messagesContainer = ref(null)
 
@@ -96,15 +114,93 @@ onMounted(() => {
     <div class="stars-bg"></div>
 
     <main class="main-content">
-      <div class="chat-interface">
-        <div class="chat-header">
+      <div class="full-screen-div">
+        <div class="">
+          <fwb-modal position="center" v-if="isShowModal" @close="closeModal">
+            <template #header>
+              <div class="flex items-center text-lg">Esta seguro que quiere crear otro prompt.</div>
+            </template>
+            <template #body>
+              <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
+                actualmente cuenta con 2 prompt por lo cual puede crear 3 mas solamente.
+              </p>
+            </template>
+            <template #footer>
+              <div class="flex justify-between">
+                <fwb-button @click="closeModal" color="alternative"> Cancelar </fwb-button>
+                <fwb-button @click="closeModal" color="green"> Crear </fwb-button>
+              </div>
+            </template>
+          </fwb-modal>
+
+          <div class="mb-25">
+            <fwb-table hoverable>
+              <fwb-table-head>
+                <fwb-table-head-cell>Prompt</fwb-table-head-cell>
+                <fwb-table-head-cell>Continuar</fwb-table-head-cell>
+              </fwb-table-head>
+              <fwb-table-body>
+                <fwb-table-row>
+                  <fwb-table-cell>
+                    Apple <br />
+                    iPhone
+                  </fwb-table-cell>
+                  <fwb-table-cell>
+                    <fwb-a href="#">Edit </fwb-a>
+                  </fwb-table-cell>
+                </fwb-table-row>
+                <fwb-table-row>
+                  <fwb-table-cell>camilo</fwb-table-cell>
+                  <fwb-table-cell>
+                    <fwb-a href="#">Edit </fwb-a>
+                  </fwb-table-cell>
+                </fwb-table-row>
+                <fwb-table-row>
+                  <fwb-table-cell
+                    >Magic <br />
+                    Mouse 2</fwb-table-cell
+                  >
+                  <fwb-table-cell>
+                    <fwb-a href="#">Edit </fwb-a>
+                  </fwb-table-cell>
+                </fwb-table-row>
+                <fwb-table-row>
+                  <fwb-table-cell
+                    >Magic <br />
+                    Mouse 2</fwb-table-cell
+                  >
+                  <fwb-table-cell>
+                    <fwb-a href="#">Edit </fwb-a>
+                  </fwb-table-cell>
+                </fwb-table-row>
+                <fwb-table-row>
+                  <fwb-table-cell
+                    >Magic <br />
+                    Mouse 2</fwb-table-cell
+                  >
+                  <fwb-table-cell>
+                    <fwb-a href="#">Edit </fwb-a>
+                  </fwb-table-cell>
+                </fwb-table-row>
+              </fwb-table-body>
+            </fwb-table>
+          </div>
+        </div>
+        <div class="button-container">
+          <button class="btn" @click="showModal">Nuevo Prompt</button>
+          <button class="btn">Historial Prompt</button>
+        </div>
+      </div>
+
+      <div v-if="sidebar" class="chat-interface">
+        <div v-if="sidebar" class="chat-header">
           <div>
             <h2 class="text-xl font-semibold text-white">AI Prompt Assistant</h2>
             <p class="text-sm text-gray-400">Crear el Prompt perfecto para sus necesidades</p>
           </div>
         </div>
 
-        <div class="messages-container" ref="messagesContainer">
+        <div v-if="sidebar" class="messages-container" ref="messagesContainer">
           <div
             v-for="(message, index) in messages"
             :key="index"
@@ -130,7 +226,7 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="input-container">
+        <div v-if="sidebar" class="input-container">
           <textarea
             v-model="userInput"
             @keydown.enter.prevent="sendMessage"
@@ -142,58 +238,53 @@ onMounted(() => {
           </button>
         </div>
       </div>
-
-      <div class="prompt-preview" v-if="generatedPrompt">
-        <div class="preview-header">
-          <h3 class="text-lg font-semibold text-white">Generated Prompt</h3>
-          <button @click="copyPrompt" class="copy-button">
-            <ClipboardIcon class="h-5 w-5 mr-1" />
-            Copy
-          </button>
-        </div>
-        <div class="preview-content">
-          <p>{{ generatedPrompt }}</p>
-        </div>
-      </div>
     </main>
-
-    <!-- Save Prompt Modal -->
-    <div v-if="showSaveModal" class="modal-overlay">
-      <div class="modal-container">
-        <div class="modal-header">
-          <h3 class="text-xl font-semibold text-white">Save Your Prompt</h3>
-          <button @click="showSaveModal = false" class="text-gray-400 hover:text-white">
-            <XIcon class="h-5 w-5" />
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-4">
-            <label class="block text-gray-300 mb-2">Prompt Title</label>
-            <input
-              type="text"
-              v-model="promptTitle"
-              class="form-input"
-              placeholder="Give your prompt a name"
-            />
-          </div>
-          <div class="mb-6">
-            <label class="block text-gray-300 mb-2">Category</label>
-            <select v-model="promptCategory" class="form-input">
-              <option value="image">Image Generation</option>
-              <option value="code">Code Assistant</option>
-              <option value="writing">Content Writing</option>
-              <option value="data">Data Analysis</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <button @click="confirmSave" class="save-button">Save Prompt</button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <style scoped>
+/* Solo se aplica en pantallas pequeñas */
+@media screen and (max-width: 500px) {
+  /* Div que ocupará todo el espacio disponible */
+  .full-screen-div {
+    width: 100%; /* Ocupa el 100% del ancho de la ventana */
+    height: 70vh; /* Ocupa el 70% de la altura de la ventana */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Alinea los elementos al final de la columna */
+    box-sizing: border-box; /* Esto asegura que el borde se cuente dentro del tamaño total del div */
+  }
+
+  /* Contenedor de los botones */
+  .button-container {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    display: flex;
+    justify-content: space-between; /* Espacia los botones de forma que estén alineados de izquierda a derecha */
+    width: 100%; /* Asegura que los botones ocupen todo el ancho disponible */
+    padding: 10px; /* Añade algo de espacio alrededor de los botones */
+  }
+
+  /* Estilo de los botones */
+  .btn {
+    padding: 5px 10px;
+    font-size: 15px;
+    border: 2px solid #007bff; /* Borde azul */
+    background-color: #007bff; /* Fondo azul */
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+
+  /* Efecto hover de los botones */
+  .btn:hover {
+    background-color: #0056b3; /* Fondo azul más oscuro */
+  }
+}
+
 /* Base styles */
 :root {
   --color-bg-primary: #0a0b1a;
