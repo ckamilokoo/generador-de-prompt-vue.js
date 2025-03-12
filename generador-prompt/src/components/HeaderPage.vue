@@ -29,27 +29,23 @@
       <nav class="hidden md:block">
         <ul class="flex space-x-6">
           <RouterLink
-            to="/"
+            v-if="!authStore.isAutenticado"
+            to="auth/login"
             type="button"
-            class="mr-3 border border-blue-700 py-1.5 px-6 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-lg"
+            class="block border border-blue-700 py-2 px-4 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-lg"
+            @click="isMobileMenuOpen = false"
           >
-            Inicio
+            Login
           </RouterLink>
-          <RouterLink
-            to="/about"
-            type="button"
-            class="mr-3 border border-blue-700 py-1.5 px-6 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-lg"
-          >
-            Chatbot
-          </RouterLink>
-          <li v-if="!isLoggedIn">
-            <RouterLink
-              to="auth/login"
+
+          <li v-if="authStore.isAutenticado">
+            <button
+              @click="authStore.logout()"
               type="button"
-              class="mr-3 border border-blue-700 py-1.5 px-6 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-lg"
+              class="mr-3 hidden bg-blue-700 py-1.5 px-6 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 md:mr-0 md:inline-block rounded-lg"
             >
-              Login
-            </RouterLink>
+              Cerrar sesión
+            </button>
           </li>
           <li v-else>
             <button @click="navigateToApp" class="app-button">Go to App</button>
@@ -60,42 +56,23 @@
     <!-- Menú móvil: se muestra solo en pantallas pequeñas -->
     <div v-if="isMobileMenuOpen" class="md:hidden bg-gray-800">
       <ul class="px-4 py-2 space-y-2">
-        <li>
-          <RouterLink
-            to="/"
-            type="button"
-            class="block border border-blue-700 py-2 px-4 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-lg"
-            @click="isMobileMenuOpen = false"
-          >
-            Inicio
-          </RouterLink>
-        </li>
-        <li>
-          <RouterLink
-            to="/about"
-            type="button"
-            class="block border border-blue-700 py-2 px-4 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-lg"
-            @click="isMobileMenuOpen = false"
-          >
-            Chatbot
-          </RouterLink>
-        </li>
-        <li v-if="!isLoggedIn">
-          <RouterLink
-            to="auth/login"
-            type="button"
-            class="block border border-blue-700 py-2 px-4 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-lg"
-            @click="isMobileMenuOpen = false"
-          >
-            Login
-          </RouterLink>
-        </li>
-        <li v-else>
+        <RouterLink
+          v-if="!authStore.isAutenticado"
+          to="auth/login"
+          type="button"
+          class="block border bg-blue-700 border-blue-700 py-2 px-4 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-lg"
+          @click="isMobileMenuOpen = false"
+        >
+          Login
+        </RouterLink>
+
+        <li v-if="authStore.isAutenticado">
           <button
-            @click="(navigateToApp(), (isMobileMenuOpen = false))"
-            class="block w-full border border-blue-700 py-2 px-4 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-lg"
+            @click="authStore.logout()"
+            type="button"
+            class="block border bg-blue-700 py-2 px-4 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-lg"
           >
-            Go to App
+            Cerrar sesión
           </button>
         </li>
       </ul>
@@ -106,9 +83,11 @@
 <script setup>
 import { ref } from 'vue'
 import { SparklesIcon } from 'lucide-vue-next'
+import { useAuthStore } from '@/auth/stores/auth.store'
 
 const isLoggedIn = ref(false)
 const isMobileMenuOpen = ref(false)
+const authStore = useAuthStore()
 
 function navigateToApp() {
   // Lógica para navegar a la aplicación

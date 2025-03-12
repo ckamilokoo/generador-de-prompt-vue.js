@@ -28,6 +28,11 @@ authStore.$subscribe(
       router.replace({ name: 'about' })
       return
     }
+
+    if (route.path.includes('/about') && state.authStatus === AuthStatus.NoAutorizado) {
+      router.replace({ name: 'login' })
+      return
+    }
     console.log(state.authStatus)
   },
   {
