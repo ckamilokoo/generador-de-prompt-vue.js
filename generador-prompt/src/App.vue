@@ -26,10 +26,10 @@ watch(
   () => ({ path: route.path, status: authStore.authStatus }),
   ({ path, status }) => {
     if (path.includes('/auth') && status === AuthStatus.Autorizado) {
-      router.replace({ name: 'about' })
+      router.push({ name: 'about' })
     }
 
-    if (!path.includes('/auth') && status === AuthStatus.NoAutorizado) {
+    if (path.includes('/about') && status === AuthStatus.NoAutorizado) {
       router.push({ name: 'login' })
     }
   },
