@@ -18,12 +18,12 @@ import { isAxiosError } from 'axios'
 export const Nuevo_PromptActions = async (username: string, prompt: string, messages: []) => {
   try {
     const { data } = await Backend.post('/conversaciones/', { username, prompt, messages })
-
+    console.log('dentro prompt.actions ', data.data[0])
     return {
       ok: true,
-      mensaje: data.message,
-      id: data.data.id,
-      user_id: data.data.user_id,
+      mensaje: data.data[0]['messages'],
+      id: data.data[0]['user_id'],
+      user_id: data.data[0]['id'],
     }
   } catch (error) {
     console.log(error)

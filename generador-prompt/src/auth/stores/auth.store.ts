@@ -14,6 +14,7 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref(useLocalStorage('token', ''))
   const mensajes = ref<string | undefined>('')
   const prompt_guardados = ref({})
+  const prompt_nuevo = ref({})
 
   const mensaje = async (mensaje: string, thread_id: string) => {
     try {
@@ -31,11 +32,15 @@ export const useAuthStore = defineStore('auth', () => {
   const crearPrompt = async (username: string) => {
     try {
       const MensajeResp = await Nuevo_PromptActions(username, '', [])
+      console.log('dentro de piña', MensajeResp)
+      prompt_nuevo.value = {
+        id: MensajeResp.id,
+        prompt: MensajeResp.user_id,
+        mensajes: MensajeResp.mensaje,
+      }
 
-      mensajes.value = MensajeResp.id
-
-      console.log('id del prompt nuevo:', mensajes.value)
-      return mensajes
+      console.log('id del prompt nuevo:', prompt_nuevo.value)
+      return prompt_nuevo
     } catch (error) {
       return error
     }

@@ -122,24 +122,26 @@ const generateAIResponse = async (query) => {
   }
 }
 
-const prompts = ref(null)
+const prompts = ref([])
 
-const tiene_prompt = ref(true)
+const tiene_prompt = ref(false)
 
 const cargarPrompts = async () => {
   try {
     console.log('cargarprompt funcion', authStore.username)
     const respuesta = await authStore.obtener_prompt(authStore.username)
 
-    console.log('resultado de respuesta dentro de cargar prompt.', respuesta.value)
+    console.log('resultado de respuesta dentro de cargar prompt.', respuesta)
     console.log('largo de respuesta :', respuesta.value.length)
 
     // Verifica si hay datos en respuesta.value
     if (respuesta.value && respuesta.value.length > 0) {
       prompts.value = respuesta.value
       console.log('Prompts cargados:', prompts.value)
+      tiene_prompt.value = true
     } else {
       tiene_prompt.value = false
+      prompts.value = []
       console.log('No hay datos en prompts:', prompts.value)
     }
   } catch (error) {
@@ -149,16 +151,18 @@ const cargarPrompts = async () => {
 
 const crearPromptNuevo = async (username) => {
   try {
+    console.log(username)
     const respuesta = await authStore.crearPrompt(username)
-    console.log('resultado de crear un prompt.', respuesta.value)
-    console.log('largo de respuesta :', respuesta.value.length)
-    if (respuesta.value.length < 1) {
-      prompts.value = respuesta.value
-      console.log('si respuesta es mayor a 0', prompts.value)
+    console.log('resultado de respuesta de vue.js.', respuesta.value)
+
+    // Si respuesta.value es un objeto válido y tiene la propiedad id:
+    if (respuesta.value && respuesta.value.id) {
+      console.log('Prompt creado correctamente:', respuesta.value)
+      cargarPrompts()
     }
-    if (respuesta.value === null) {
-      tiene_prompt.value = false
-      //console.log('NO HAY DATOS', prompts.value)
+    // Si la respuesta es null o no tiene id:
+    else if (respuesta.value === null) {
+      console.log('Respuesta null:', respuesta.value)
     } else {
       console.error('Error al obtener prompts:', respuesta.mensaje)
     }
@@ -220,17 +224,11 @@ onMounted(() => {
         <div
           class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700"
         >
-          <div
-            v-if="tiene_prompt"
-            v-for="prompt in prompts"
-            :key="prompt?.id"
-            class="px-5 pb-5 sm:pl-10 pt-3"
-          >
-            <template>
+          <div>
+            <div v-for="prompt in prompts" :key="prompt.id" class="px-5 pb-5 sm:pl-10 pt-3">
               <a href="#">
                 <h5 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                  {{ prompt.prompt }}
-                  {{ prompt.id }}
+                  {{ prompt.prompt || 'Sin descripción' }} - {{ prompt.id }}
                 </h5>
               </a>
 
@@ -247,10 +245,11 @@ onMounted(() => {
                 >
                   Eliminar
                 </button>
-              </div></template
-            >
+              </div>
+            </div>
           </div>
-          <div v-else>
+
+          <div v-if="!tiene_prompt">
             <h1 class="pt-10 text-center text-white pb-10">
               No tiene ningun prompt creado hasta ahora.
             </h1>
