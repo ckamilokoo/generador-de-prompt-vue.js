@@ -24,6 +24,7 @@ export const Nuevo_PromptActions = async (username: string, prompt: string, mess
       mensaje: data.data[0]['messages'],
       id: data.data[0]['user_id'],
       user_id: data.data[0]['id'],
+      prompt: data.data[0]['prompt'],
     }
   } catch (error) {
     console.log(error)

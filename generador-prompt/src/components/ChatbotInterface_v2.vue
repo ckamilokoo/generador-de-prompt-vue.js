@@ -45,15 +45,15 @@ const isTyping = ref(false)
 const messagesContainer = ref(null)
 
 // Función que agrega un mensaje del bot al array de mensajes y luego llama a scrollToBottom
-const addBotMessage = (content) => {
+const addBotMessage = (content, buttons = []) => {
   content.replace('\n', '')
-  messages.value.push({ sender: 'bot', content })
+  messages.value.push({ sender: 'bot', content, buttons })
   scrollToBottom()
 }
 
 // Función que agrega un mensaje del usuario al array de mensajes y luego llama a scrollToBottom
-const addUserMessage = (content) => {
-  messages.value.push({ sender: 'user', content })
+const addUserMessage = (content, buttons = []) => {
+  messages.value.push({ sender: 'user', content, buttons })
   scrollToBottom()
 }
 
@@ -68,10 +68,6 @@ const scrollToBottom = () => {
 }
 
 const isSidebarMinimized = ref(false)
-
-const toggleSidebar = () => {
-  isSidebarMinimized.value = !isSidebarMinimized.value
-}
 
 // Función que se ejecuta al enviar un mensaje.
 // Valida que el input del usuario no esté vacío, agrega el mensaje, limpia el input,
@@ -102,9 +98,10 @@ const threadId = ref('') // Añadir referencia para el thread ID
 // Hace uso del store de autenticación para enviar el mensaje y obtener la respuesta del backend.
 const generateAIResponse = async (query) => {
   try {
-    isTyping.value = true
     // Si no existe un threadId, se asigna utilizando el nombre de usuario del store de autenticación.
     if (!threadId.value) {
+      //console.log(authStore.prompt_nuevo['id'])
+      console.log('id dentro de generar una respuesta ', authStore.user.username)
       threadId.value = authStore.user.username
     }
 
@@ -118,7 +115,6 @@ const generateAIResponse = async (query) => {
     addBotMessage('Ocurrió un error al comunicarse con el servidor')
   } finally {
     // Finalmente se desactiva el indicador de "escribiendo"
-    isTyping.value = false
   }
 }
 
@@ -138,6 +134,18 @@ const cargarPrompts = async () => {
     if (respuesta.value && respuesta.value.length > 0) {
       prompts.value = respuesta.value
       console.log('Prompts cargados:', prompts.value)
+
+      for (let i = 0; i < prompts.value.length; i++) {
+        const prompt = prompts.value[i]
+        const buttons = [
+          { text: 'Continuar', action: () => Continuar() },
+          { text: 'Eliminar', action: () => console.log('Eliminar') },
+        ]
+        console.log(prompt)
+        const content = prompt.prompt.trim() === '' ? 'Mensaje por defecto' : prompt.prompt
+        // Llama a la función addBotMessage con el contenido del prompt y los botones
+        addBotMessage(content, buttons)
+      }
       tiene_prompt.value = true
     } else {
       tiene_prompt.value = false
@@ -149,16 +157,35 @@ const cargarPrompts = async () => {
   }
 }
 
+const Continuar = async () => {
+  messages.value = []
+  fase_1.value = true
+  addBotMessage('Cuentame de te trata tu necesidad')
+}
+
 const crearPromptNuevo = async (username) => {
   try {
+    authStore.prompt_nuevo.value = {}
     console.log(username)
     const respuesta = await authStore.crearPrompt(username)
-    console.log('resultado de respuesta de vue.js.', respuesta.value)
-
+    console.log('resultado de respuesta de vue.js.', authStore.prompt_nuevo['id'])
+    console.log('resultado de respuesta de vue.js.', authStore.prompt_nuevo['prompt'])
+    console.log('resultado de respuesta de vue.js.', authStore.prompt_nuevo['mensajes'])
     // Si respuesta.value es un objeto válido y tiene la propiedad id:
     if (respuesta.value && respuesta.value.id) {
       console.log('Prompt creado correctamente:', respuesta.value)
-      cargarPrompts()
+      const content =
+        authStore.prompt_nuevo['prompt'].trim() === ''
+          ? 'Prompt creado recien'
+          : authStore.prompt_nuevo['prompt']
+
+      const buttons = [
+        { text: 'Continuar', action: () => Continuar() },
+        { text: 'Eliminar', action: () => console.log('Eliminar') },
+      ]
+
+      // Llama a la función addBotMessage con el contenido del prompt y los botones
+      addBotMessage(content, buttons)
     }
     // Si la respuesta es null o no tiene id:
     else if (respuesta.value === null) {
@@ -171,14 +198,44 @@ const crearPromptNuevo = async (username) => {
   }
 }
 
+const formatMessage = (message) => {
+  return message
+}
+
+const fase_1 = ref(false)
+
+const cargarPrompts_2 = async () => {
+  try {
+    console.log('cargarprompt funcion', authStore.username)
+    const respuesta = await authStore.obtener_prompt(authStore.username)
+
+    // Verifica si hay datos en respuesta.value
+    if (respuesta.value && respuesta.value.length > 0) {
+      addBotMessage('Elija una opción para empezar:')
+
+      addBotMessage('Crear un nuevo prompt.', [
+        { text: 'Crear Prompt', action: () => crearPromptNuevo(authStore.username) },
+      ])
+      addBotMessage('Continuar con un prompt ya creado', [
+        { text: 'Mostrar Prompt guardados', action: cargarPrompts },
+      ])
+    } else {
+      addBotMessage('Inicia creando un Prompt', [
+        { text: 'Crear Prompt', action: () => crearPromptNuevo(authStore.username) },
+      ])
+      console.log('No hay datos en prompts:', prompts.value)
+    }
+  } catch (error) {
+    console.error('Error inesperado:', error)
+  }
+}
+
 // Hook onMounted que se ejecuta al montar el componente.
 // Se envía un mensaje de bienvenida del bot para iniciar la conversación.
 onMounted(() => {
-  cargarPrompts()
-  addBotMessage(
-    '¡Bienvenido al Asistente Nebula Prompt!\n Estoy aquí para ayudarte a crear el prompt perfecto para tus necesidades de IA \n' +
-      ' Que tipo de Prompt te gustaria crear hoy?',
-  )
+  cargarPrompts_2()
+
+  addBotMessage('¡Bienvenido al Asistente Nebula Prompt! \n')
 })
 </script>
 
@@ -190,71 +247,11 @@ onMounted(() => {
       <div class="chat-interface">
         <div class="chat-header">
           <div>
-            <section class="sm:pb-2 sm:pt-5 sm:pl-2 lg:pb-1 lg:pt-5 dark:bg-dark lg:items-center">
-              <div class="container">
-                <div class="flex justify-center">
-                  <div
-                    class="inline-flex items-center overflow-hidden rounded-lg border border-stroke dark:border-dark-3"
-                  >
-                    <button
-                      @click="crearPromptNuevo(authStore.username)"
-                      class="border-r border-stroke px-4 py-3 text-base font-medium text-dark last-of-type:border-r-0 hover:bg-gray-2 hover:text-primary dark:border-dark-3 dark:text-white"
-                    >
-                      Nuevo prompt
-                    </button>
-
-                    <button
-                      @click="cargarPrompts"
-                      class="border-r border-stroke px-4 py-3 text-base font-medium text-dark last-of-type:border-r-0 hover:bg-gray-2 hover:text-primary dark:border-dark-3 dark:text-white"
-                    >
-                      Prompt Guardados
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </section>
-            <h2 v-if="isOpen" class="text-xl font-semibold text-white">AI Prompt Assistant</h2>
-            <p v-if="isOpen" class="text-sm text-gray-400">
-              Crear el Prompt perfecto para sus necesidades
-            </p>
+            <h2 class="text-xl font-semibold text-white">AI Prompt Assistant</h2>
+            <p class="text-sm text-gray-400">Crear el Prompt perfecto para sus necesidades</p>
           </div>
         </div>
-        <br />
 
-        <div
-          class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700"
-        >
-          <div>
-            <div v-for="prompt in prompts" :key="prompt.id" class="px-5 pb-5 sm:pl-10">
-              <a href="#">
-                <h5 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                  {{ prompt.prompt || 'Sin descripción' }} - {{ prompt.id }}
-                </h5>
-              </a>
-
-              <div class="flex items-center justify-between pt-3">
-                <button
-                  href="#"
-                  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-1 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                >
-                  Continuar
-                </button>
-                <button
-                  href="#"
-                  class="text-white bg-red-600 hover:bg-red-900 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-1 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-                >
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="!tiene_prompt">
-            <h1 class="pt-10 text-center text-white pb-10">
-              No tiene ningun prompt creado hasta ahora.
-            </h1>
-          </div>
-        </div>
         <div class="messages-container" ref="messagesContainer">
           <div
             v-for="(message, index) in messages"
@@ -265,18 +262,37 @@ onMounted(() => {
               'bot-message': message.sender === 'bot',
             }"
           >
-            <div v-if="isOpen" class="message-avatar">
+            <div class="message-avatar">
               <UserIcon v-if="message.sender === 'user'" class="h-6 w-6" />
               <SparklesIcon v-else class="h-6 w-6" />
             </div>
+            <div class="message-content">
+              <p v-html="formatMessage(message.content)"></p>
+              <div v-if="message.buttons.length > 0">
+                <button
+                  v-for="(button, btnIndex) in message.buttons"
+                  :key="btnIndex"
+                  @click="button.action"
+                  class="bg-slate-500 hover:bg-green-600 text-black font-semibold rounded-md py-2 px-1 w-full block mb-4 mt-2"
+                >
+                  {{ button.text }}
+                </button>
+              </div>
+              <div v-else></div>
+            </div>
+          </div>
 
-            <div v-if="isOpen" class="message-content">
-              <p v-html="message.content"></p>
+          <div v-if="isTyping" class="typing-indicator">
+            <h1>pensando ...</h1>
+            <div class="dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
             </div>
           </div>
         </div>
 
-        <div class="input-container">
+        <div class="input-container" v-if="fase_1">
           <textarea
             v-model="userInput"
             @keydown.enter.prevent="sendMessage"
@@ -289,6 +305,8 @@ onMounted(() => {
         </div>
       </div>
     </main>
+
+    <!-- Save Prompt Modal -->
   </div>
 </template>
 

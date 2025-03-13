@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import Chabot from '../components/ChatbotInterface.vue'
+import Chabot_v2 from '../components/ChatbotInterface_v2.vue'
 </script>
 
 <template>
   <main>
-    <Chabot />
+    <Chabot_v2 />
   </main>
 </template>
 

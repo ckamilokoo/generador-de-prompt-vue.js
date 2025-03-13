@@ -35,7 +35,7 @@ export const useAuthStore = defineStore('auth', () => {
       console.log('dentro de piña', MensajeResp)
       prompt_nuevo.value = {
         id: MensajeResp.id,
-        prompt: MensajeResp.user_id,
+        prompt: MensajeResp.prompt,
         mensajes: MensajeResp.mensaje,
       }
 
@@ -131,6 +131,7 @@ export const useAuthStore = defineStore('auth', () => {
     authStatus,
 
     // Getters
+    prompt_nuevo,
     isCheking: computed(() => authStatus.value === AuthStatus.Cheking),
     isAutenticado: computed(() => authStatus.value === AuthStatus.Autorizado),
     isAdmin: computed(() => user.value?.rol === 'admin'),
