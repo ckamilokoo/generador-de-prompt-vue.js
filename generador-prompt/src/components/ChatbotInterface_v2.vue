@@ -85,7 +85,7 @@ const sendMessage = () => {
   isTyping.value = true
   // Simulamos un retardo de 1.5 segundos antes de generar la respuesta del bot
   setTimeout(() => {
-    isTyping.value = false
+    //isTyping.value = false
     generateAIResponse(userQuery)
   }, 1500)
 }
@@ -98,22 +98,28 @@ const threadId = ref('') // Añadir referencia para el thread ID
 // Hace uso del store de autenticación para enviar el mensaje y obtener la respuesta del backend.
 const generateAIResponse = async (query) => {
   try {
+    isTyping.value = true
     // Si no existe un threadId, se asigna utilizando el nombre de usuario del store de autenticación.
     if (!threadId.value) {
       //console.log(authStore.prompt_nuevo['id'])
       console.log('id dentro de generar una respuesta ', authStore.user.username)
-      threadId.value = authStore.user.username
+      console.log('id dentro de generar una respuesta ', id_prompt_actual.value)
+      threadId.value = authStore.user.username + '_' + id_prompt_actual.value
+      console.log(threadId.value)
     }
 
     // Se envía el mensaje al backend usando la función "mensaje" del store y se espera la respuesta.
     const response = await authStore.mensaje(query, threadId.value)
     // Se agrega la respuesta del bot al chat. Se accede al valor de la respuesta (ya que es un ref)
     addBotMessage(response.value)
+    isTyping.value = false
   } catch (error) {
     // En caso de error, se muestra el error en la consola y se agrega un mensaje de error en el chat.
     console.error('Error:', error)
     addBotMessage('Ocurrió un error al comunicarse con el servidor')
+    isTyping.value = false
   } finally {
+    isTyping.value = false
     // Finalmente se desactiva el indicador de "escribiendo"
   }
 }
@@ -138,7 +144,7 @@ const cargarPrompts = async () => {
       for (let i = 0; i < prompts.value.length; i++) {
         const prompt = prompts.value[i]
         const buttons = [
-          { text: 'Continuar', action: () => Continuar() },
+          { text: 'Continuar', action: () => Continuar(prompt.id) },
           { text: 'Eliminar', action: () => console.log('Eliminar') },
         ]
         console.log(prompt)
@@ -157,7 +163,11 @@ const cargarPrompts = async () => {
   }
 }
 
-const Continuar = async () => {
+const id_prompt_actual = ref('')
+
+const Continuar = async (id) => {
+  id_prompt_actual.value = id
+  console.log(id_prompt_actual.value)
   messages.value = []
   fase_1.value = true
   addBotMessage('Cuentame de te trata tu necesidad')
