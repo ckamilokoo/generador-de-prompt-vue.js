@@ -1,4 +1,5 @@
 <script setup>
+// Importación de componentes de Flowbite-Vue para construir interfaces (por ejemplo, tablas, botones, etc.)
 import {
   FwbA,
   FwbTable,
@@ -8,6 +9,8 @@ import {
   FwbTableHeadCell,
   FwbTableRow,
 } from 'flowbite-vue'
+
+// Importación de iconos de Lucide-Vue para agregar elementos gráficos al UI
 import {
   SparklesIcon,
   UserIcon,
@@ -18,40 +21,44 @@ import {
   ClipboardIcon,
   XIcon,
 } from 'lucide-vue-next'
+
+// Importamos funciones reactivas y hooks de Vue para gestionar el estado y ciclo de vida
 import { ref, onMounted, nextTick } from 'vue'
+
+// Se obtiene la instancia del store de autenticación. Es importante que la importación de useAuthStore se realice (más adelante se importa explícitamente)
 const authStore = useAuthStore()
 
-import { FwbButton, FwbModal } from 'flowbite-vue'
+// Estado para mostrar u ocultar el sidebar
+const isOpen = ref(false)
 
-const isShowModal = ref(false)
-
-function closeModal() {
-  isShowModal.value = false
-}
-function showModal() {
-  isShowModal.value = true
-}
-
+// Importación del store de autenticación. (Aunque se utilizó anteriormente, esta línea debería estar idealmente antes)
 import { useAuthStore } from '@/auth/stores/auth.store'
 
+// Variable reactiva para almacenar el input del usuario en el chat
 const userInput = ref('')
+// Array reactivo para almacenar los mensajes (tanto del usuario como del bot)
 const messages = ref([])
+// Flag reactivo que indica si el bot está "escribiendo" o procesando una respuesta
 const isTyping = ref(false)
 
-const sidebar = ref(false)
-
+// Referencia a un contenedor HTML donde se mostrarán los mensajes del chat.
 const messagesContainer = ref(null)
 
+// Función que agrega un mensaje del bot al array de mensajes y luego llama a scrollToBottom
 const addBotMessage = (content) => {
+  content.replace('\n', '')
   messages.value.push({ sender: 'bot', content })
   scrollToBottom()
 }
 
+// Función que agrega un mensaje del usuario al array de mensajes y luego llama a scrollToBottom
 const addUserMessage = (content) => {
   messages.value.push({ sender: 'user', content })
   scrollToBottom()
 }
 
+// Función para desplazar el scroll del contenedor de mensajes hasta el final
+// nextTick asegura que el DOM se haya actualizado con el nuevo mensaje antes de cambiar la posición del scroll.
 const scrollToBottom = () => {
   nextTick(() => {
     if (messagesContainer.value) {
@@ -60,48 +67,110 @@ const scrollToBottom = () => {
   })
 }
 
+const isSidebarMinimized = ref(false)
+
+const toggleSidebar = () => {
+  isSidebarMinimized.value = !isSidebarMinimized.value
+}
+
+// Función que se ejecuta al enviar un mensaje.
+// Valida que el input del usuario no esté vacío, agrega el mensaje, limpia el input,
+// activa el indicador de "escribiendo" y, tras un retardo, llama a generar la respuesta del bot.
 const sendMessage = () => {
   if (!userInput.value.trim()) return
 
+  // Agregamos el mensaje del usuario al chat
   addUserMessage(userInput.value)
+  // Guardamos el mensaje en una variable antes de limpiar el input
   const userQuery = userInput.value
   userInput.value = ''
 
+  // Indicamos que el bot está procesando la respuesta
   isTyping.value = true
+  // Simulamos un retardo de 1.5 segundos antes de generar la respuesta del bot
   setTimeout(() => {
     isTyping.value = false
     generateAIResponse(userQuery)
   }, 1500)
 }
 
+// Declaración de una variable reactiva para almacenar el threadId del chat.
+// Este identificador se utilizará para mantener la continuidad de la conversación.
 const threadId = ref('') // Añadir referencia para el thread ID
 
+// Función asíncrona que se encarga de generar la respuesta del bot a partir del query del usuario.
+// Hace uso del store de autenticación para enviar el mensaje y obtener la respuesta del backend.
 const generateAIResponse = async (query) => {
   try {
     isTyping.value = true
-    // Si no tenemos threadId, lo creamos a partir del username del usuario
+    // Si no existe un threadId, se asigna utilizando el nombre de usuario del store de autenticación.
     if (!threadId.value) {
       threadId.value = authStore.user.username
     }
 
-    // Enviamos el mensaje al backend y obtenemos la respuesta (que es un ref)
+    // Se envía el mensaje al backend usando la función "mensaje" del store y se espera la respuesta.
     const response = await authStore.mensaje(query, threadId.value)
-    // Como response es un ref, accedemos a su valor con .value
-    // Y lo mostramos en el chat llamando a addBotMessage
+    // Se agrega la respuesta del bot al chat. Se accede al valor de la respuesta (ya que es un ref)
     addBotMessage(response.value)
   } catch (error) {
+    // En caso de error, se muestra el error en la consola y se agrega un mensaje de error en el chat.
     console.error('Error:', error)
     addBotMessage('Ocurrió un error al comunicarse con el servidor')
   } finally {
+    // Finalmente se desactiva el indicador de "escribiendo"
     isTyping.value = false
   }
 }
 
-const formatMessage = (message) => {
-  return message.replace(/\n/g, '<br>')
+const prompts = ref(null)
+
+const tiene_prompt = ref(true)
+
+const cargarPrompts = async () => {
+  try {
+    console.log('cargarprompt funcion', authStore.username)
+    const respuesta = await authStore.obtener_prompt(authStore.username)
+
+    console.log('resultado de respuesta dentro de cargar prompt.', respuesta.value)
+    console.log('largo de respuesta :', respuesta.value.length)
+
+    // Verifica si hay datos en respuesta.value
+    if (respuesta.value && respuesta.value.length > 0) {
+      prompts.value = respuesta.value
+      console.log('Prompts cargados:', prompts.value)
+    } else {
+      tiene_prompt.value = false
+      console.log('No hay datos en prompts:', prompts.value)
+    }
+  } catch (error) {
+    console.error('Error inesperado:', error)
+  }
 }
 
+const crearPromptNuevo = async (username) => {
+  try {
+    const respuesta = await authStore.crearPrompt(username)
+    console.log('resultado de crear un prompt.', respuesta.value)
+    console.log('largo de respuesta :', respuesta.value.length)
+    if (respuesta.value.length < 1) {
+      prompts.value = respuesta.value
+      console.log('si respuesta es mayor a 0', prompts.value)
+    }
+    if (respuesta.value === null) {
+      tiene_prompt.value = false
+      //console.log('NO HAY DATOS', prompts.value)
+    } else {
+      console.error('Error al obtener prompts:', respuesta.mensaje)
+    }
+  } catch (error) {
+    console.error('Error inesperado:', error)
+  }
+}
+
+// Hook onMounted que se ejecuta al montar el componente.
+// Se envía un mensaje de bienvenida del bot para iniciar la conversación.
 onMounted(() => {
+  cargarPrompts()
   addBotMessage(
     '¡Bienvenido al Asistente Nebula Prompt!\n Estoy aquí para ayudarte a crear el prompt perfecto para tus necesidades de IA \n' +
       ' Que tipo de Prompt te gustaria crear hoy?',
@@ -114,93 +183,80 @@ onMounted(() => {
     <div class="stars-bg"></div>
 
     <main class="main-content">
-      <div class="full-screen-div">
-        <div class="">
-          <fwb-modal position="center" v-if="isShowModal" @close="closeModal">
-            <template #header>
-              <div class="flex items-center text-lg">Esta seguro que quiere crear otro prompt.</div>
-            </template>
-            <template #body>
-              <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-                actualmente cuenta con 2 prompt por lo cual puede crear 3 mas solamente.
-              </p>
-            </template>
-            <template #footer>
-              <div class="flex justify-between">
-                <fwb-button @click="closeModal" color="alternative"> Cancelar </fwb-button>
-                <fwb-button @click="closeModal" color="green"> Crear </fwb-button>
-              </div>
-            </template>
-          </fwb-modal>
-
-          <div class="mb-25">
-            <fwb-table hoverable>
-              <fwb-table-head>
-                <fwb-table-head-cell>Prompt</fwb-table-head-cell>
-                <fwb-table-head-cell>Continuar</fwb-table-head-cell>
-              </fwb-table-head>
-              <fwb-table-body>
-                <fwb-table-row>
-                  <fwb-table-cell>
-                    Apple <br />
-                    iPhone
-                  </fwb-table-cell>
-                  <fwb-table-cell>
-                    <fwb-a href="#">Edit </fwb-a>
-                  </fwb-table-cell>
-                </fwb-table-row>
-                <fwb-table-row>
-                  <fwb-table-cell>camilo</fwb-table-cell>
-                  <fwb-table-cell>
-                    <fwb-a href="#">Edit </fwb-a>
-                  </fwb-table-cell>
-                </fwb-table-row>
-                <fwb-table-row>
-                  <fwb-table-cell
-                    >Magic <br />
-                    Mouse 2</fwb-table-cell
-                  >
-                  <fwb-table-cell>
-                    <fwb-a href="#">Edit </fwb-a>
-                  </fwb-table-cell>
-                </fwb-table-row>
-                <fwb-table-row>
-                  <fwb-table-cell
-                    >Magic <br />
-                    Mouse 2</fwb-table-cell
-                  >
-                  <fwb-table-cell>
-                    <fwb-a href="#">Edit </fwb-a>
-                  </fwb-table-cell>
-                </fwb-table-row>
-                <fwb-table-row>
-                  <fwb-table-cell
-                    >Magic <br />
-                    Mouse 2</fwb-table-cell
-                  >
-                  <fwb-table-cell>
-                    <fwb-a href="#">Edit </fwb-a>
-                  </fwb-table-cell>
-                </fwb-table-row>
-              </fwb-table-body>
-            </fwb-table>
-          </div>
-        </div>
-        <div class="button-container">
-          <button class="btn" @click="showModal">Nuevo Prompt</button>
-          <button class="btn">Historial Prompt</button>
-        </div>
-      </div>
-
-      <div v-if="sidebar" class="chat-interface">
-        <div v-if="sidebar" class="chat-header">
+      <div class="chat-interface">
+        <div class="chat-header">
           <div>
-            <h2 class="text-xl font-semibold text-white">AI Prompt Assistant</h2>
-            <p class="text-sm text-gray-400">Crear el Prompt perfecto para sus necesidades</p>
+            <section class="sm:pb-2 sm:pt-5 sm:pl-2 lg:pb-1 lg:pt-5 dark:bg-dark lg:items-center">
+              <div class="container">
+                <div class="flex justify-center">
+                  <div
+                    class="inline-flex items-center overflow-hidden rounded-lg border border-stroke dark:border-dark-3"
+                  >
+                    <button
+                      @click="crearPromptNuevo(authStore.username)"
+                      class="border-r border-stroke px-4 py-3 text-base font-medium text-dark last-of-type:border-r-0 hover:bg-gray-2 hover:text-primary dark:border-dark-3 dark:text-white"
+                    >
+                      Nuevo prompt
+                    </button>
+
+                    <button
+                      @click="cargarPrompts"
+                      class="border-r border-stroke px-4 py-3 text-base font-medium text-dark last-of-type:border-r-0 hover:bg-gray-2 hover:text-primary dark:border-dark-3 dark:text-white"
+                    >
+                      Prompt Guardados
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <h2 v-if="isOpen" class="text-xl font-semibold text-white">AI Prompt Assistant</h2>
+            <p v-if="isOpen" class="text-sm text-gray-400">
+              Crear el Prompt perfecto para sus necesidades
+            </p>
           </div>
         </div>
+        <br />
 
-        <div v-if="sidebar" class="messages-container" ref="messagesContainer">
+        <div
+          class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700"
+        >
+          <div
+            v-if="tiene_prompt"
+            v-for="prompt in prompts"
+            :key="prompt?.id"
+            class="px-5 pb-5 sm:pl-10 pt-3"
+          >
+            <template>
+              <a href="#">
+                <h5 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+                  {{ prompt.prompt }}
+                  {{ prompt.id }}
+                </h5>
+              </a>
+
+              <div class="flex items-center justify-between pt-3">
+                <button
+                  href="#"
+                  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-1 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  Continuar
+                </button>
+                <button
+                  href="#"
+                  class="text-white bg-red-600 hover:bg-red-900 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-1 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                >
+                  Eliminar
+                </button>
+              </div></template
+            >
+          </div>
+          <div v-else>
+            <h1 class="pt-10 text-center text-white pb-10">
+              No tiene ningun prompt creado hasta ahora.
+            </h1>
+          </div>
+        </div>
+        <div class="messages-container" ref="messagesContainer">
           <div
             v-for="(message, index) in messages"
             :key="index"
@@ -210,27 +266,22 @@ onMounted(() => {
               'bot-message': message.sender === 'bot',
             }"
           >
-            <div class="message-avatar">
+            <div v-if="isOpen" class="message-avatar">
               <UserIcon v-if="message.sender === 'user'" class="h-6 w-6" />
               <SparklesIcon v-else class="h-6 w-6" />
             </div>
-            <div class="message-content">
-              <p v-html="formatMessage(message.content)"></p>
-            </div>
-          </div>
 
-          <div v-if="isTyping" class="typing-indicator">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
+            <div v-if="isOpen" class="message-content">
+              <p v-html="message.content"></p>
+            </div>
           </div>
         </div>
 
-        <div v-if="sidebar" class="input-container">
+        <div class="input-container">
           <textarea
             v-model="userInput"
             @keydown.enter.prevent="sendMessage"
-            placeholder="Describe what kind of prompt you need..."
+            placeholder="escribe tu mensaje"
             class="message-input"
           ></textarea>
           <button @click="sendMessage" class="send-button" :disabled="!userInput.trim()">
@@ -243,8 +294,25 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* Ocultar sidebar en pantallas pequeñas */
+@media (max-width: 768px) {
+  .translate-x-0 {
+    transform: translateX(0);
+  }
+  .-translate-x-full {
+    transform: translateX(-100%);
+  }
+}
+
 /* Solo se aplica en pantallas pequeñas */
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 400px) {
+  .chat-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
   /* Div que ocupará todo el espacio disponible */
   .full-screen-div {
     width: 100%; /* Ocupa el 100% del ancho de la ventana */
@@ -395,15 +463,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
   overflow: hidden;
-  height: calc(100vh - 180px);
-}
-
-.chat-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  height: calc(100vh - 140px);
 }
 
 .prompt-type-select {
@@ -682,7 +742,7 @@ body {
   }
 
   .chat-interface {
-    height: calc(100vh - 140px);
+    height: calc(90vh - 100px);
   }
 
   .chat-header,

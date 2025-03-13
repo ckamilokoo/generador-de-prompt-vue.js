@@ -68,15 +68,17 @@
   <div class="mt-6 text-blue-500 text-center space-y-4">
     <RouterLink
       :to="{ name: 'login' }"
-      class="bg-orange-500 hover:bg-blue-600 text-white font-semibold rounded-md py-2 px-4 w-full block"
-      >Iniciar Sesión</RouterLink
+      class="bg-orange-500 hover:bg-orange-700 text-white font-semibold rounded-md py-2 px-4 w-full block"
     >
-    <br />
+      Iniciar Sesión
+    </RouterLink>
+
     <RouterLink
       :to="{ name: 'home' }"
-      class="bg-green-400 hover:bg-blue-600 text-white font-semibold rounded-md py-2 px-4 w-full block"
-      >Home</RouterLink
+      class="bg-green-400 hover:bg-green-600 text-white font-semibold rounded-md py-2 px-1 w-full block"
     >
+      Home
+    </RouterLink>
   </div>
 </template>
 <script lang="ts" setup>

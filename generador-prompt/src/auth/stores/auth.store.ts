@@ -5,22 +5,51 @@ import { loginAction } from '../actions/login.actions'
 import { registroAction } from '../actions/register.actions'
 import { useLocalStorage } from '@vueuse/core'
 import { checkAuthActions } from '../actions/check-auth.actions'
-import { Generar_PromptActions } from '@/generar_prompt/mensaje.actions'
+import { Nuevo_MensajeActions } from '@/generar_prompt/mensaje.actions'
+import { Obtener_PromptActions, Nuevo_PromptActions } from '@/generar_prompt/prompt.actions'
 
 export const useAuthStore = defineStore('auth', () => {
   const authStatus = ref<AuthStatus>(AuthStatus.Cheking)
   const user = ref<User | undefined>()
   const token = ref(useLocalStorage('token', ''))
   const mensajes = ref<string | undefined>('')
+  const prompt_guardados = ref({})
 
   const mensaje = async (mensaje: string, thread_id: string) => {
     try {
-      const MensajeResp = await Generar_PromptActions(mensaje, thread_id)
+      const MensajeResp = await Nuevo_MensajeActions(mensaje, thread_id)
 
       mensajes.value = MensajeResp.respuesta
 
       console.log(mensajes)
       return mensajes
+    } catch (error) {
+      return error
+    }
+  }
+
+  const crearPrompt = async (username: string) => {
+    try {
+      const MensajeResp = await Nuevo_PromptActions(username, '', [])
+
+      mensajes.value = MensajeResp.id
+
+      console.log('id del prompt nuevo:', mensajes.value)
+      return mensajes
+    } catch (error) {
+      return error
+    }
+  }
+
+  const obtener_prompt = async (username: string) => {
+    try {
+      console.log(' dentro obtener_prompt', username)
+      const MensajeResp = await Obtener_PromptActions(username)
+
+      prompt_guardados.value = MensajeResp.conversaciones
+
+      console.log('obtener_prompt prompt guardado', prompt_guardados.value)
+      return prompt_guardados
     } catch (error) {
       return error
     }
@@ -109,5 +138,7 @@ export const useAuthStore = defineStore('auth', () => {
     registro,
     checkAuthStatus,
     mensaje,
+    obtener_prompt,
+    crearPrompt,
   }
 })

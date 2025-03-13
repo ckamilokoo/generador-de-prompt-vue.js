@@ -2,7 +2,7 @@ import { Backend } from '@/api/Backend_online'
 
 import { isAxiosError } from 'axios'
 
-export const Generar_PromptActions = async (mensaje: string, thread_id: string) => {
+export const Nuevo_MensajeActions = async (mensaje: string, thread_id: string) => {
   try {
     const { data } = await Backend.post('/mensajes_prompt', { mensaje, thread_id })
 

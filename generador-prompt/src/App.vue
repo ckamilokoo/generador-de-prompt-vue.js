@@ -12,7 +12,7 @@ console.log('Params:', route.params)
 import { useAuthStore } from './auth/stores/auth.store'
 import { AuthStatus } from './auth/interfaces/Auth.Response'
 import { useRoute, useRouter } from 'vue-router'
-import { onMounted, watch } from 'vue'
+import { onMounted, watch, computed } from 'vue'
 
 const authStore = useAuthStore()
 
@@ -21,6 +21,9 @@ const router = useRouter()
 onMounted(() => {
   authStore.checkAuthStatus()
 })
+
+// Comprobación más eficiente de rutas de autenticación
+const isAuthRoute = computed(() => route.path === '/auth/login' || route.path === '/auth/registro')
 
 watch(
   () => ({ path: route.path, status: authStore.authStatus }),
@@ -38,12 +41,9 @@ watch(
 </script>
 
 <template>
-  <div v-if="route.path == '/auth/login'"><RouterView /></div>
-  <div v-else>
-    <HeaderPage />
-    <RouterView />
-    <FooterPage />
-  </div>
+  <HeaderPage v-if="!isAuthRoute" />
+  <RouterView />
+  <FooterPage v-if="!isAuthRoute" />
 </template>
 
 <style scoped>
