@@ -257,6 +257,7 @@ const cargarPrompts_2 = async () => {
 const cargarPrompts_3 = async () => {
   try {
     messages.value = []
+    fase_1.value = false
     console.log('cargarprompt funcion', authStore.username)
     const respuesta = await authStore.obtener_prompt(authStore.username)
 
