@@ -84,10 +84,7 @@ const sendMessage = () => {
   // Indicamos que el bot está procesando la respuesta
   isTyping.value = true
   // Simulamos un retardo de 1.5 segundos antes de generar la respuesta del bot
-  setTimeout(() => {
-    //isTyping.value = false
-    generateAIResponse(userQuery)
-  }, 1500)
+  generateAIResponse(userQuery)
 }
 
 // Declaración de una variable reactiva para almacenar el threadId del chat.
@@ -143,9 +140,18 @@ const cargarPrompts = async () => {
 
       for (let i = 0; i < prompts.value.length; i++) {
         const prompt = prompts.value[i]
+        let idString = String(prompt.id)
         const buttons = [
           { text: 'Continuar', action: () => Continuar(prompt.id) },
-          { text: 'Eliminar', action: () => console.log('Eliminar') },
+          {
+            text: 'Eliminar',
+            action: () => {
+              authStore.eliminarPrompt(authStore.username, idString)
+              messages.value = []
+              addBotMessage('¡Bienvenido al Asistente Nebula Prompt! \n')
+              cargarPrompts_2()
+            },
+          },
         ]
         console.log(prompt)
         const content = prompt.prompt.trim() === '' ? 'Mensaje por defecto' : prompt.prompt
@@ -170,7 +176,7 @@ const Continuar = async (id) => {
   console.log(id_prompt_actual.value)
   messages.value = []
   fase_1.value = true
-  addBotMessage('Cuentame de te trata tu necesidad')
+  addBotMessage('Cuentame de que trata tu necesidad')
 }
 
 const crearPromptNuevo = async (username) => {
@@ -188,10 +194,18 @@ const crearPromptNuevo = async (username) => {
         authStore.prompt_nuevo['prompt'].trim() === ''
           ? 'Prompt creado recien'
           : authStore.prompt_nuevo['prompt']
-
+      let idString = String(authStore.prompt_nuevo['id'])
       const buttons = [
-        { text: 'Continuar', action: () => Continuar() },
-        { text: 'Eliminar', action: () => console.log('Eliminar') },
+        { text: 'Continuar', action: () => Continuar(authStore.prompt_nuevo['id']) },
+        {
+          text: 'Eliminar',
+          action: () => {
+            authStore.eliminarPrompt(authStore.username, idString)
+            messages.value = []
+            addBotMessage('¡Bienvenido al Asistente Nebula Prompt! \n')
+            cargarPrompts_2()
+          },
+        },
       ]
 
       // Llama a la función addBotMessage con el contenido del prompt y los botones
@@ -240,6 +254,33 @@ const cargarPrompts_2 = async () => {
   }
 }
 
+const cargarPrompts_3 = async () => {
+  try {
+    messages.value = []
+    console.log('cargarprompt funcion', authStore.username)
+    const respuesta = await authStore.obtener_prompt(authStore.username)
+
+    // Verifica si hay datos en respuesta.value
+    if (respuesta.value && respuesta.value.length > 0) {
+      addBotMessage('Elija una opción para empezar:')
+
+      addBotMessage('Crear un nuevo prompt.', [
+        { text: 'Crear Prompt', action: () => crearPromptNuevo(authStore.username) },
+      ])
+      addBotMessage('Continuar con un prompt ya creado', [
+        { text: 'Mostrar Prompt guardados', action: cargarPrompts },
+      ])
+    } else {
+      addBotMessage('Inicia creando un Prompt', [
+        { text: 'Crear Prompt', action: () => crearPromptNuevo(authStore.username) },
+      ])
+      console.log('No hay datos en prompts:', prompts.value)
+    }
+  } catch (error) {
+    console.error('Error inesperado:', error)
+  }
+}
+
 // Hook onMounted que se ejecuta al montar el componente.
 // Se envía un mensaje de bienvenida del bot para iniciar la conversación.
 onMounted(() => {
@@ -256,9 +297,12 @@ onMounted(() => {
     <main class="main-content">
       <div class="chat-interface">
         <div class="chat-header">
-          <div>
-            <h2 class="text-xl font-semibold text-white">AI Prompt Assistant</h2>
-            <p class="text-sm text-gray-400">Crear el Prompt perfecto para sus necesidades</p>
+          <div class="flex justify-between items-center">
+            <div>
+              <h2 class="text-xl font-semibold text-white">AI Prompt Assistant</h2>
+              <p class="text-sm text-gray-400">Crear el Prompt perfecto para sus necesidades</p>
+            </div>
+            <button @click="cargarPrompts_3()" v-if="fase_1" class="send-button">Volver</button>
           </div>
         </div>
 
@@ -292,12 +336,17 @@ onMounted(() => {
             </div>
           </div>
 
-          <div v-if="isTyping" class="typing-indicator">
-            <h1>pensando ...</h1>
-            <div class="dots">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
+          <div v-if="isTyping" class="message">
+            <div class="message-avatar">
+              <SparklesIcon class="h-6 w-6" />
+            </div>
+            <div class="message-content">
+              <h1>pensando ...</h1>
+              <div class="dots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
             </div>
           </div>
         </div>

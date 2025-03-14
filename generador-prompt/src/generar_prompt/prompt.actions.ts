@@ -22,9 +22,29 @@ export const Nuevo_PromptActions = async (username: string, prompt: string, mess
     return {
       ok: true,
       mensaje: data.data[0]['messages'],
-      id: data.data[0]['user_id'],
-      user_id: data.data[0]['id'],
+      id: data.data[0]['id'],
+      user_id: data.data[0]['user_id'],
       prompt: data.data[0]['prompt'],
+    }
+  } catch (error) {
+    console.log(error)
+    if (isAxiosError(error) && error.response?.status === 401) {
+      return {
+        ok: false,
+        mensaje: 'Usuario o contraseña incorrectos',
+      }
+    }
+    throw new Error('No se pudo realizar la peticion ')
+  }
+}
+
+export const Eliminar_PromptActions = async (username: string, id_conversacion: string) => {
+  try {
+    const { data } = await Backend.post('/conversaciones_eliminar/', { username, id_conversacion })
+    console.log('dentro prompt.actions ', data)
+    return {
+      ok: true,
+      mensaje: data,
     }
   } catch (error) {
     console.log(error)

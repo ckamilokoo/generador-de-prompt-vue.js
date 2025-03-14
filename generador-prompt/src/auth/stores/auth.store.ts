@@ -6,7 +6,11 @@ import { registroAction } from '../actions/register.actions'
 import { useLocalStorage } from '@vueuse/core'
 import { checkAuthActions } from '../actions/check-auth.actions'
 import { Nuevo_MensajeActions } from '@/generar_prompt/mensaje.actions'
-import { Obtener_PromptActions, Nuevo_PromptActions } from '@/generar_prompt/prompt.actions'
+import {
+  Obtener_PromptActions,
+  Nuevo_PromptActions,
+  Eliminar_PromptActions,
+} from '@/generar_prompt/prompt.actions'
 
 export const useAuthStore = defineStore('auth', () => {
   const authStatus = ref<AuthStatus>(AuthStatus.Cheking)
@@ -15,6 +19,7 @@ export const useAuthStore = defineStore('auth', () => {
   const mensajes = ref<string | undefined>('')
   const prompt_guardados = ref({})
   const prompt_nuevo = ref({})
+  const eliminar_prompt = ref(false)
 
   const mensaje = async (mensaje: string, thread_id: string) => {
     try {
@@ -24,6 +29,21 @@ export const useAuthStore = defineStore('auth', () => {
 
       console.log(mensajes)
       return mensajes
+    } catch (error) {
+      return error
+    }
+  }
+
+  const eliminarPrompt = async (username: string, id_conversacion: string) => {
+    try {
+      const MensajeResp = await Eliminar_PromptActions(username, id_conversacion)
+
+      if (MensajeResp) {
+        eliminar_prompt.value = true
+
+        console.log(eliminar_prompt)
+        return eliminar_prompt
+      }
     } catch (error) {
       return error
     }
@@ -146,5 +166,6 @@ export const useAuthStore = defineStore('auth', () => {
     mensaje,
     obtener_prompt,
     crearPrompt,
+    eliminarPrompt,
   }
 })
