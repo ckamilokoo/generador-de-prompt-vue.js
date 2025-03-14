@@ -149,7 +149,7 @@ const cargarPrompts = async () => {
               authStore.eliminarPrompt(authStore.username, idString)
               messages.value = []
               addBotMessage('¡Bienvenido al Asistente Nebula Prompt! \n')
-              cargarPrompts_2()
+              cargarPrompts_3()
             },
           },
         ]
@@ -203,7 +203,7 @@ const crearPromptNuevo = async (username) => {
             authStore.eliminarPrompt(authStore.username, idString)
             messages.value = []
             addBotMessage('¡Bienvenido al Asistente Nebula Prompt! \n')
-            cargarPrompts_2()
+            cargarPrompts_3()
           },
         },
       ]
@@ -262,6 +262,7 @@ const cargarPrompts_3 = async () => {
 
     // Verifica si hay datos en respuesta.value
     if (respuesta.value && respuesta.value.length > 0) {
+      addBotMessage('¡Bienvenido al Asistente Nebula Prompt! \n')
       addBotMessage('Elija una opción para empezar:')
 
       addBotMessage('Crear un nuevo prompt.', [
@@ -271,6 +272,7 @@ const cargarPrompts_3 = async () => {
         { text: 'Mostrar Prompt guardados', action: cargarPrompts },
       ])
     } else {
+      addBotMessage('¡Bienvenido al Asistente Nebula Prompt! \n')
       addBotMessage('Inicia creando un Prompt', [
         { text: 'Crear Prompt', action: () => crearPromptNuevo(authStore.username) },
       ])
